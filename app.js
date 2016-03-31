@@ -9,6 +9,7 @@ var passport = require('passport');
 require('dotenv').load();
 var cookieSession = require('cookie-session');
 
+
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
@@ -24,6 +25,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
+app.use(passport.session());
 app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
@@ -38,7 +40,7 @@ passport.use(new LinkedInStrategy({
   scope: ['r_emailaddress', 'r_basicprofile'],
   state: true
 }, function(accessToken, refreshToken, profile, done) {
-  done(null, {id: profile.id, displayName: profile.displayName})
+  done(null, {id: profile.id, displayName: profile.displayName, token: accessToken})
 }));
 
 
@@ -54,6 +56,8 @@ app.get('/auth/linkedin/callback', passport.authenticate('linkedin', {
     failureRedirect: '/login'
 }));
 
+
+
 passport.serializeUser(function(user, done) {
   done(null, user);
 });
@@ -63,12 +67,18 @@ passport.deserializeUser(function(user, done) {
 });
 
 app.use(function (req, res, next) {
-  res.locals.user = req.session.passport.user
+  if (!req.session.passport) {
+    app.locals.user = null;
+  }else {
+    app.locals.user = req.session.passport.user;
+  }
   next()
 })
 
+
 app.use('/', routes);
 app.use('/users', users);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
