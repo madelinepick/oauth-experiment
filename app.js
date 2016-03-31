@@ -27,7 +27,7 @@ app.use(passport.initialize());
 app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
-  keys: [process.env.LINKEDIN_CLIENT_SECRET]
+  keys: [process.env.SESSION_KEY]
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
