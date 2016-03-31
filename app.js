@@ -38,15 +38,9 @@ passport.use(new LinkedInStrategy({
   state: true,
   scope: ['r_emailaddress', 'r_basicprofile'],
 }, function(accessToken, refreshToken, profile, done) {
-  // asynchronous verification, for effect...
-  process.nextTick(function () {
-    // To keep the example simple, the user's LinkedIn profile is returned to
-    // represent the logged-in user. In a typical application, you would want
-    // to associate the LinkedIn account with a user record in your database,
-    // and return that user instead.
-    return done(null, profile);
-  });
+  done(null, {id: profile.id, displayName: profile.displayName})
 }));
+
 
 app.get('/auth/linkedin',
   passport.authenticate('linkedin'),
